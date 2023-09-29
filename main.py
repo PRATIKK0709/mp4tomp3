@@ -69,18 +69,18 @@ output_label.pack()
 output_file_entry = tk.Entry(app, width=50)
 output_file_entry.pack()
 
-# Create a frame for Browse Output and Convert buttons
+# Create a frame for Browse Output and Convert buttons with some padding
 button_frame = tk.Frame(app)
-button_frame.pack()
+button_frame.pack(pady=10)  # Add padding at the top
 browse_output_button = tk.Button(button_frame, text="Browse", command=browse_output_file)
 browse_output_button.pack(side=tk.LEFT)
 convert_button = tk.Button(button_frame, text="Convert", command=convert)
 convert_button.pack(side=tk.LEFT)
 
-# Progress bar
+# Progress bar with padding
 progress_bar = ttk.Progressbar(app, length=300, mode="determinate")
 status_label = tk.Label(app, text="")
-progress_bar.pack()
+progress_bar.pack(pady=10)  # Add padding at the bottom
 status_label.pack()
 
 # Run the application
