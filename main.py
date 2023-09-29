@@ -2,11 +2,14 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from moviepy.editor import VideoFileClip
+from tkinter import ttk
+from threading import Thread
+import time
 
-def mp4_to_mp3(input_file, output_file):
+def mp4_to_mp3(input_file, output_file, progress_bar, status_label):
     video = VideoFileClip(input_file)
     audio = video.audio
-    audio.write_audiofile(output_file)
+    audio.write_audiofile(output_file, logger=None)
     audio.close()
 
 def browse_input_file():
@@ -27,8 +30,26 @@ def convert():
         status_label.config(text="Please select input and output files.")
         return
     
-    mp4_to_mp3(input_file, output_file)
-    status_label.config(text="Conversion completed.")
+    status_label.config(text="Converting...")
+    progress_bar["value"] = 0
+
+    def conversion_thread():
+        mp4_to_mp3(input_file, output_file, progress_bar, status_label)
+    
+    thread = Thread(target=conversion_thread)
+    thread.start()
+
+    def update_progress():
+        while thread.is_alive():
+            video = VideoFileClip(input_file)
+            progress = (video.reader.pos / video.reader.nframes) * 100
+            progress_bar["value"] = progress
+            app.update_idletasks()
+            time.sleep(1)
+        progress_bar["value"] = 100
+        status_label.config(text="Conversion completed")
+    
+    Thread(target=update_progress).start()
 
 # Create the main application window
 app = tk.Tk()
@@ -56,8 +77,10 @@ browse_output_button.pack(side=tk.LEFT)
 convert_button = tk.Button(button_frame, text="Convert", command=convert)
 convert_button.pack(side=tk.LEFT)
 
-# Status label
+# Progress bar
+progress_bar = ttk.Progressbar(app, length=300, mode="determinate")
 status_label = tk.Label(app, text="")
+progress_bar.pack()
 status_label.pack()
 
 # Run the application
